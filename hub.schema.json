@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/g-e-n-v/coon-hub/main/hub.schema.json",
+  "title": "Coon Hub catalog (schema v1)",
+  "description": "Nguồn sự thật cho tab Hub của app Coon (IHU689G). Chuẩn kiểm tra thực tế là tools/validate.py — schema này là hợp đồng hình thức cho editor/tooling.",
+  "type": "object",
+  "required": ["schemaVersion", "apps"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "apps": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/app" }
+    }
+  },
+  "definitions": {
+    "app": {
+      "type": "object",
+      "required": ["package", "name", "summary", "category", "releases"],
+      "additionalProperties": false,
+      "properties": {
+        "package": { "$ref": "#/definitions/packageName" },
+        "name": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "category": {
+          "description": "Chỉ để nhóm hiển thị trong Coon. factory có mặt = system app patch (nghiệp vụ), category không ràng buộc chéo với factory.",
+          "enum": ["patch", "maps", "media", "utility", "other"]
+        },
+        "icon": {
+          "description": "Path tương đối tính từ gốc repo — Coon resolve theo base URL của catalog.",
+          "type": "string",
+          "pattern": "^icons/[^/]+\\.(webp|png)$"
+        },
+        "requires": {
+          "description": "Package phải có trước khi dùng. Coon chỉ CẢNH BÁO khi thiếu, không chặn cài.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/packageName" },
+          "uniqueItems": true
+        },
+        "postInstall": {
+          "description": "Hook chạy sau cài mới / cập nhật (patch + app thường). Bộ giá trị đóng, xem README.",
+          "$ref": "#/definitions/hookList"
+        },
+        "postRollback": {
+          "description": "Hook chạy sau 'Gỡ cập nhật' (rollback patch về /system factory).",
+          "$ref": "#/definitions/hookList"
+        },
+        "factory": {
+          "description": "Có field này = system app patch. versionCode + sha256 để Coon detect trạng thái; apk + size để chia sẻ và khôi phục worst-case.",
+          "$ref": "#/definitions/factory"
+        },
+        "releases": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/release" }
+        }
+      }
+    },
+    "factory": {
+      "type": "object",
+      "required": ["versionCode", "sha256", "apk", "size"],
+      "additionalProperties": false,
+      "properties": {
+        "versionCode": { "type": "integer", "minimum": 1 },
+        "sha256": { "$ref": "#/definitions/sha256" },
+        "apk": { "$ref": "#/definitions/httpsUrl" },
+        "size": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "release": {
+      "type": "object",
+      "required": ["releaseAt", "versionCode", "apk", "sha256", "size"],
+      "additionalProperties": false,
+      "properties": {
+        "releaseAt": {
+          "description": "ISO YYYY-MM-DD; tối đa 1 release/app/ngày; Coon hiển thị dạng 2026.11.04.",
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "versionCode": { "type": "integer", "minimum": 1 },
+        "apk": { "$ref": "#/definitions/httpsUrl" },
+        "sha256": { "$ref": "#/definitions/sha256" },
+        "size": { "type": "integer", "minimum": 0 },
+        "notes": {
+          "description": "Changelog: những gì đã làm trong release này.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "hookList": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          { "const": "reboot" },
+          {
+            "description": "ComponentName dạng flat của Android: package/class (class có thể bắt đầu bằng '.' = nối thêm package). Parse bằng ComponentName.unflattenFromString().",
+            "type": "string",
+            "pattern": "^start-service:[^/\\s]+/[^/\\s]+$"
+          }
+        ]
+      }
+    },
+    "packageName": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "pattern": "^https://\\S+$"
+    }
+  }
+}
