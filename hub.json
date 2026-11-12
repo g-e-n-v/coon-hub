@@ -1,4 +1,134 @@
 {
   "schemaVersion": 1,
-  "apps": []
+  "apps": [
+    {
+      "package": "app.revanced.android.gms",
+      "name": "MicroG RE",
+      "summary": "Dịch vụ Google thay thế cho các app ReVanced / Morphe. Cài trước YouTube ReVanced.",
+      "tags": ["Hệ thống"],
+      "icon": "icons/app.revanced.android.gms.webp",
+      "releases": [
+        {
+          "releaseAt": "2026-11-11",
+          "versionCode": 255070304,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/app.revanced.android.gms-255070304.apk",
+          "sha256": "c0007dd1c70e0e9532daffdd16a84670779abfeeaf3a62802e5af5bdb3798962",
+          "size": 45648640
+        }
+      ]
+    },
+    {
+      "package": "app.revanced.android.youtube",
+      "name": "YouTube ReVanced",
+      "summary": "YouTube (ReVanced), không quảng cáo, tự sáng/tối theo xe. Cần MicroG RE.",
+      "tags": ["Giải trí"],
+      "icon": "icons/app.revanced.android.youtube.webp",
+      "requires": ["app.revanced.android.gms"],
+      "releases": [
+        {
+          "releaseAt": "2026-11-11",
+          "versionCode": 1561068413,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/app.revanced.android.youtube-1561068413.apk",
+          "sha256": "e706bc92daf2e4f910055466fb36c814d912b852b95fab5e893be642369a5f40",
+          "size": 196360717,
+          "notes": ["Bản autotheme — giao diện tự sáng/tối theo xe"]
+        }
+      ]
+    },
+    {
+      "package": "com.google.android.googlequicksearchbox",
+      "name": "Google (nhận dạng giọng nói)",
+      "summary": "Google app — nhận dạng giọng nói cho trợ lý và các ứng dụng trên xe.",
+      "tags": ["Hệ thống"],
+      "icon": "icons/com.google.android.googlequicksearchbox.webp",
+      "releases": [
+        {
+          "releaseAt": "2026-11-11",
+          "versionCode": 301541706,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/com.google.android.googlequicksearchbox-301541706.apk",
+          "sha256": "4965966c59b03a3ba6bc132f96d573c612e3b5e21f05137859cf9d02be9daed5",
+          "size": 238118058
+        }
+      ]
+    },
+    {
+      "package": "com.google.android.inputmethod.latin",
+      "name": "Gboard",
+      "summary": "Bàn phím Google, gõ được tiếng Việt, tự sáng/tối theo xe.",
+      "tags": ["Tiện ích"],
+      "icon": "icons/com.google.android.inputmethod.latin.webp",
+      "releases": [
+        {
+          "releaseAt": "2026-11-11",
+          "versionCode": 176049814,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/com.google.android.inputmethod.latin-176049814.apk",
+          "sha256": "adb377402e24507a540748b0942fe4c7afab31f2da5d92297b813afde5476b1c",
+          "size": 82278440,
+          "notes": ["Bản autotheme — bàn phím tự sáng/tối theo xe"]
+        }
+      ]
+    },
+    {
+      "package": "com.google.android.tts",
+      "name": "Google Text-to-speech",
+      "summary": "Giọng đọc Text-to-speech của Google cho hệ thống và các ứng dụng.",
+      "tags": ["Hệ thống"],
+      "icon": "icons/com.google.android.tts.webp",
+      "releases": [
+        {
+          "releaseAt": "2026-11-11",
+          "versionCode": 210598194,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/com.google.android.tts-210598194.apk",
+          "sha256": "b8556d877a1db5b67677cd93401e6e98b98e735fe689f086eb5b42766f647614",
+          "size": 75102770
+        }
+      ]
+    },
+    {
+      "package": "com.njda.adapter",
+      "name": "NJDA Connection Adapter",
+      "summary": "Bộ chuyển kết nối điện thoại lên màn hình xe (projection). Thành phần hệ thống — chỉ đăng ký factory base.",
+      "tags": ["Hệ thống"],
+      "icon": "icons/com.njda.adapter.webp",
+      "factory": {
+        "versionCode": 20260227,
+        "sha256": "58731411353d70a196a07e74e48af7f7b22bfdc423b5f464f87e65bfde48f391",
+        "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/com.njda.adapter-factory-20260227.apk",
+        "size": 19670111
+      },
+      "releases": []
+    },
+    {
+      "package": "com.waze",
+      "name": "Waze",
+      "summary": "Waze điều hướng và cảnh báo giao thông, bản mod cho màn hình xe.",
+      "tags": ["Bản đồ"],
+      "icon": "icons/com.waze.webp",
+      "releases": [
+        {
+          "releaseAt": "2026-11-11",
+          "versionCode": 1030752,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/com.waze-1030752.apk",
+          "sha256": "a50e53c527f315b2a6aee7a09b8b128248c221f340dade8e0df1d1a83f630bd7",
+          "size": 84317337
+        }
+      ]
+    },
+    {
+      "package": "com.wynauto.wyn",
+      "name": "WYN – Cảnh báo giao thông",
+      "summary": "Cảnh báo tốc độ, biển báo (bản không quảng cáo).",
+      "tags": ["Bản đồ"],
+      "icon": "icons/com.wynauto.wyn.webp",
+      "releases": [
+        {
+          "releaseAt": "2026-11-11",
+          "versionCode": 93,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/com.wynauto.wyn-93.apk",
+          "sha256": "e708ea6e5ea426f0e1dd727f3d2a66b42de0352bf8e3a087665102be7da851b2",
+          "size": 118815823
+        }
+      ]
+    }
+  ]
 }
