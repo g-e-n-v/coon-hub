@@ -5,7 +5,9 @@
       "package": "app.revanced.android.gms",
       "name": "MicroG RE",
       "summary": "Dịch vụ Google thay thế cho các app ReVanced / Morphe. Cài trước YouTube ReVanced.",
-      "tags": ["Hệ thống"],
+      "tags": [
+        "Hệ thống"
+      ],
       "icon": "icons/app.revanced.android.gms.webp",
       "releases": [
         {
@@ -22,9 +24,13 @@
       "package": "app.revanced.android.youtube",
       "name": "YouTube ReVanced",
       "summary": "YouTube (ReVanced), không quảng cáo, tự sáng/tối theo xe. Cần MicroG RE.",
-      "tags": ["Giải trí"],
+      "tags": [
+        "Giải trí"
+      ],
       "icon": "icons/app.revanced.android.youtube.webp",
-      "requires": ["app.revanced.android.gms"],
+      "requires": [
+        "app.revanced.android.gms"
+      ],
       "releases": [
         {
           "releaseAt": "2026-11-11",
@@ -33,15 +39,52 @@
           "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/app.revanced.android.youtube-1561068413.apk",
           "sha256": "e706bc92daf2e4f910055466fb36c814d912b852b95fab5e893be642369a5f40",
           "size": 196360717,
-          "notes": ["Bản autotheme — giao diện tự sáng/tối theo xe"]
+          "notes": [
+            "Bản autotheme — giao diện tự sáng/tối theo xe"
+          ]
         }
       ]
+    },
+    {
+      "package": "com.flyme.auto.keyserver",
+      "name": "AutoKeyServer",
+      "summary": "Bản vá phím vô lăng cho Coon, đang kiểm thử.",
+      "tags": [
+        "Hệ thống"
+      ],
+      "releases": [
+        {
+          "releaseAt": "2026-11-12",
+          "versionCode": 2026111201,
+          "status": "beta",
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.12/com.flyme.auto.keyserver-2026111201.apk",
+          "sha256": "400742d770ebad8f9f43f06059bfd6681ea10a4088caf0de65341c254e993ce6",
+          "size": 12839336,
+          "notes": [
+            "Bản vá phím vô lăng từ coolray-lab, đang kiểm thử trên HU."
+          ]
+        }
+      ],
+      "postInstall": [
+        "start-service:com.flyme.auto.keyserver/.service.AutoKeyService"
+      ],
+      "postRollback": [
+        "start-service:com.flyme.auto.keyserver/.service.AutoKeyService"
+      ],
+      "factory": {
+        "versionCode": 26020313,
+        "sha256": "5dd6217da9bb472364dcd60f00b99f7ba4ca9a6421167690f5e9a226f6ffab51",
+        "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.12/com.flyme.auto.keyserver-factory-26020313.apk",
+        "size": 12761386
+      }
     },
     {
       "package": "com.waze",
       "name": "Waze",
       "summary": "Waze điều hướng và cảnh báo giao thông, bản mod cho màn hình xe.",
-      "tags": ["Bản đồ"],
+      "tags": [
+        "Bản đồ"
+      ],
       "icon": "icons/com.waze.webp",
       "releases": [
         {
@@ -58,7 +101,9 @@
       "package": "com.wynauto.wyn",
       "name": "WYN – Cảnh báo giao thông",
       "summary": "Cảnh báo tốc độ, biển báo (bản không quảng cáo).",
-      "tags": ["Bản đồ"],
+      "tags": [
+        "Bản đồ"
+      ],
       "icon": "icons/com.wynauto.wyn.webp",
       "releases": [
         {
