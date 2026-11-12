@@ -14,6 +14,10 @@
 #       --version-code 1561068412 \
 #       --name "YouTube ReVanced" --tag media --summary "Không quảng cáo." \
 #       --requires app.revanced.android.gms --note "bản đầu"
+#
+#   # bản đang kiểm thử:
+#   tools/promote.sh app.revanced.android.youtube ./youtube-beta.apk \
+#       --version-code 1561068414 --status beta --note "thử autotheme"
 
 set -euo pipefail
 
@@ -27,7 +31,7 @@ HUB_JSON="$ROOT/hub.json"
 die() { echo "LỖI: $*" >&2; exit 1; }
 
 usage() {
-  sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
   exit 1
 }
 
@@ -39,6 +43,7 @@ VERSION_CODE=""
 RELEASE_AT="$(date +%Y-%m-%d)"
 NAME=""
 SUMMARY=""
+STATUS="stable"
 FACTORY=0
 declare -a TAGS=() NOTES=() REQUIRES=() POST_INSTALL=() POST_ROLLBACK=()
 
@@ -49,6 +54,7 @@ while [[ $# -gt 0 ]]; do
     --name)          NAME="$2"; shift 2 ;;
     --tag)           TAGS+=("$2"); shift 2 ;;
     --summary)       SUMMARY="$2"; shift 2 ;;
+    --status)        STATUS="$2"; shift 2 ;;
     --note)          NOTES+=("$2"); shift 2 ;;
     --requires)      REQUIRES+=("$2"); shift 2 ;;
     --post-install)  POST_INSTALL+=("$2"); shift 2 ;;
@@ -61,6 +67,7 @@ done
 [[ "$PKG" =~ ^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$ ]] || die "package sai định dạng: $PKG"
 [[ -f "$APK" ]] || die "không tìm thấy APK: $APK"
 [[ "$VERSION_CODE" =~ ^[0-9]+$ ]] || die "cần --version-code <số nguyên> (bắt buộc)"
+[[ "$STATUS" == "stable" || "$STATUS" == "beta" ]] || die "--status chỉ nhận stable|beta (mặc định stable)"
 command -v gh >/dev/null || die "thiếu 'gh' (brew install gh; gh auth login)"
 command -v python3 >/dev/null || die "thiếu python3"
 gh auth status >/dev/null 2>&1 || die "chưa 'gh auth login'"
@@ -104,14 +111,14 @@ gh release view "$TAG" --repo "$REPO_SLUG" >/dev/null 2>&1 \
 gh release upload "$TAG" "$APK#$ASSET" --repo "$REPO_SLUG" --clobber
 
 python3 - "$HUB_JSON" "$PKG" "$VERSION_CODE" "$RELEASE_AT" "$URL" "$SHA" "$SIZE" \
-  "$FACTORY" "$NAME" "$SUMMARY" \
+  "$FACTORY" "$NAME" "$SUMMARY" "$STATUS" \
   "${NOTES[*]-}" "${REQUIRES[*]-}" "${POST_INSTALL[*]-}" "${POST_ROLLBACK[*]-}" "${TAGS[@]}" <<'PY'
 import json, sys
 
 (path, pkg, vc, release_at, url, sha, size,
- factory, name, summary,
- notes, requires, post_install, post_rollback) = sys.argv[1:15]
-tags = sys.argv[15:]
+ factory, name, summary, status,
+ notes, requires, post_install, post_rollback) = sys.argv[1:16]
+tags = sys.argv[16:]
 vc, size, factory = int(vc), int(size), int(factory)
 notes = [s for s in notes.split("|") if s]
 requires = [s for s in requires.split("|") if s]
@@ -158,7 +165,8 @@ else:
         sys.exit(f"LỖI: {pkg} đã có release versionCode={vc}")
     if any(r["releaseAt"] == release_at for r in app["releases"]):
         sys.exit(f"LỖI: {pkg} đã có release ngày {release_at} (tối đa 1 release/app/ngày)")
-    rel = {"releaseAt": release_at, "versionCode": vc, "apk": url, "sha256": sha, "size": size}
+    rel = {"releaseAt": release_at, "versionCode": vc, "status": status,
+           "apk": url, "sha256": sha, "size": size}
     if notes:
         rel["notes"] = notes
     app["releases"].append(rel)

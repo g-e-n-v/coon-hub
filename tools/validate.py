@@ -30,6 +30,8 @@ URL_RE = re.compile(r"^https://\S+$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 ICON_RE = re.compile(r"^icons/[^/]+\.((webp)|(png))$")
 HOOK_RE = re.compile(r"^start-service:[^/\s]+/[^/\s]+$")
+# Trạng thái phát hành: stable = ổn định, beta = đang kiểm thử. Bộ giá trị đóng.
+RELEASE_STATUSES = ("stable", "beta")
 # Patch versionCode 10 chữ số: YYYYMMDDnn (nn = 01..99, luôn > factory 8 chữ số).
 PATCH_VC_RE = re.compile(r"^(\d{4})(\d{2})(\d{2})(\d{2})$")
 ASSET_CHUNK = 1 << 20
@@ -38,7 +40,7 @@ ASSET_TIMEOUT_S = 300
 APP_KEYS = {"package", "name", "summary", "tags", "icon", "requires",
             "postInstall", "postRollback", "factory", "releases"}
 FACTORY_KEYS = {"versionCode", "sha256", "apk", "size"}
-RELEASE_KEYS = {"releaseAt", "versionCode", "apk", "sha256", "size", "notes"}
+RELEASE_KEYS = {"releaseAt", "versionCode", "status", "apk", "sha256", "size", "notes"}
 
 errors = []
 
@@ -174,9 +176,13 @@ def check_app(idx: int, app, icon_seen: set) -> None:
         runknown = set(rel) - RELEASE_KEYS
         if runknown:
             err(f"{rwhere}: field lạ: {sorted(runknown)}")
-        for k in ("releaseAt", "versionCode", "apk", "sha256", "size"):
+        for k in ("releaseAt", "versionCode", "status", "apk", "sha256", "size"):
             if k not in rel:
                 err(f"{rwhere}: thiếu field bắt buộc {k}")
+
+        status = rel.get("status")
+        if status not in RELEASE_STATUSES:
+            err(f"{rwhere}.status phải là {' hoặc '.join(RELEASE_STATUSES)}, được {status!r}")
 
         ra = rel.get("releaseAt")
         if not isinstance(ra, str) or not valid_date(ra):

@@ -45,6 +45,7 @@ Thông tin maintainer nằm ở `apps/<package>.md`, không nằm trong catalog.
 | `apps[].releases[]` | ✓ | mảng phiên bản, **sort tăng nghiêm ngặt theo versionCode** |
 | `releases[].releaseAt` | ✓ | ISO `YYYY-MM-DD`; tối đa 1 release/app/ngày; Coon hiển thị `2026.11.04` |
 | `releases[].versionCode` | ✓ | số nguyên thật nằm trong APK (xem quy ước dưới) |
+| `releases[].status` | ✓ | `stable` = ổn định; `beta` = đang kiểm thử. Bộ giá trị đóng — giá trị lạ Coon từ chối catalog; Coon hiển thị badge tương ứng |
 | `releases[].apk` | ✓ | URL tuyệt đối (GitHub Releases asset) |
 | `releases[].sha256` | ✓ | digest của file apk — Coon từ chối cài khi sai |
 | `releases[].size` | ✓ | byte — progress bar + hiển thị |
@@ -97,6 +98,8 @@ siết lại (npm v12 mặc định tắt) — hub cố tình đóng enum 2 acti
 tools/promote.sh com.flyme.auto.keyserver ~/path/GeelyAutoKeyServer.apk \
   --version-code 2026110401 \
   --note "map phím 360"
+
+# bản đang kiểm thử: thêm --status beta (mặc định stable)
 
 # đăng ký factory base lần đầu (APK gốc pull từ xe)
 tools/promote.sh com.flyme.auto.keyserver ~/path/factory.apk \
