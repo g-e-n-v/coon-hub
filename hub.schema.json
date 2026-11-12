@@ -16,15 +16,16 @@
   "definitions": {
     "app": {
       "type": "object",
-      "required": ["package", "name", "summary", "category", "releases"],
+      "required": ["package", "name", "summary", "tags", "releases"],
       "additionalProperties": false,
       "properties": {
         "package": { "$ref": "#/definitions/packageName" },
         "name": { "type": "string", "minLength": 1 },
         "summary": { "type": "string" },
-        "category": {
-          "description": "Chỉ để nhóm hiển thị trong Coon. factory có mặt = system app patch (nghiệp vụ), category không ràng buộc chéo với factory.",
-          "enum": ["patch", "maps", "media", "utility", "other"]
+        "tags": {
+          "description": "Nhãn tự do để nhóm hiển thị trong Coon; factory có mặt = system app patch, độc lập với tags.",
+          "type": "array",
+          "items": { "type": "string" }
         },
         "icon": {
           "description": "Path tương đối tính từ gốc repo — Coon resolve theo base URL của catalog.",

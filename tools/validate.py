@@ -24,7 +24,6 @@ REPO = Path(__file__).resolve().parent.parent
 HUB = REPO / "hub.json"
 
 SUPPORTED_SCHEMA_VERSION = 1
-CATEGORIES = {"patch", "maps", "media", "utility", "other"}
 PACKAGE_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 URL_RE = re.compile(r"^https://\S+$")
@@ -36,7 +35,7 @@ PATCH_VC_RE = re.compile(r"^(\d{4})(\d{2})(\d{2})(\d{2})$")
 ASSET_CHUNK = 1 << 20
 ASSET_TIMEOUT_S = 300
 
-APP_KEYS = {"package", "name", "summary", "category", "icon", "requires",
+APP_KEYS = {"package", "name", "summary", "tags", "icon", "requires",
             "postInstall", "postRollback", "factory", "releases"}
 FACTORY_KEYS = {"versionCode", "sha256", "apk", "size"}
 RELEASE_KEYS = {"releaseAt", "versionCode", "apk", "sha256", "size", "notes"}
@@ -111,8 +110,9 @@ def check_app(idx: int, app, icon_seen: set) -> None:
     if not isinstance(app.get("summary"), str):
         err(f"{where}: summary phải là chuỗi")
 
-    if app.get("category") not in CATEGORIES:
-        err(f"{where}: category phải thuộc {sorted(CATEGORIES)}, được {app.get('category')!r}")
+    tags = app.get("tags")
+    if not isinstance(tags, list) or not all(isinstance(tag, str) for tag in tags):
+        err(f"{where}: tags phải là mảng string")
 
     icon = app.get("icon")
     if icon is not None:

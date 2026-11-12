@@ -12,7 +12,7 @@
 #
 #   tools/promote.sh app.revanced.android.youtube ./youtube.apk \
 #       --version-code 1561068412 \
-#       --name "YouTube ReVanced" --category media --summary "Không quảng cáo." \
+#       --name "YouTube ReVanced" --tag media --summary "Không quảng cáo." \
 #       --requires app.revanced.android.gms --note "bản đầu"
 
 set -euo pipefail
@@ -38,17 +38,16 @@ APK="$1"; shift
 VERSION_CODE=""
 RELEASE_AT="$(date +%Y-%m-%d)"
 NAME=""
-CATEGORY=""
 SUMMARY=""
 FACTORY=0
-declare -a NOTES=() REQUIRES=() POST_INSTALL=() POST_ROLLBACK=()
+declare -a TAGS=() NOTES=() REQUIRES=() POST_INSTALL=() POST_ROLLBACK=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --version-code)  VERSION_CODE="$2"; shift 2 ;;
     --release-at)    RELEASE_AT="$2"; shift 2 ;;
     --name)          NAME="$2"; shift 2 ;;
-    --category)      CATEGORY="$2"; shift 2 ;;
+    --tag)           TAGS+=("$2"); shift 2 ;;
     --summary)       SUMMARY="$2"; shift 2 ;;
     --note)          NOTES+=("$2"); shift 2 ;;
     --requires)      REQUIRES+=("$2"); shift 2 ;;
@@ -89,8 +88,7 @@ fi
 
 # Tạo app entry mới nếu cần.
 if [[ $EXISTS -eq 0 ]]; then
-  [[ -n "$NAME" && -n "$CATEGORY" ]] || die "app mới: cần tối thiểu --name và --category"
-  case "$CATEGORY" in patch|maps|media|utility|other) ;; *) die "category phải thuộc patch|maps|media|utility|other" ;; esac
+  [[ -n "$NAME" ]] || die "app mới: cần --name"
 fi
 
 TAG="hub-$(python3 -c "import sys;print(sys.argv[1].replace('-','.'))" "$RELEASE_AT")"
@@ -106,13 +104,14 @@ gh release view "$TAG" --repo "$REPO_SLUG" >/dev/null 2>&1 \
 gh release upload "$TAG" "$APK#$ASSET" --repo "$REPO_SLUG" --clobber
 
 python3 - "$HUB_JSON" "$PKG" "$VERSION_CODE" "$RELEASE_AT" "$URL" "$SHA" "$SIZE" \
-  "$FACTORY" "$NAME" "$CATEGORY" "$SUMMARY" \
-  "${NOTES[*]-}" "${REQUIRES[*]-}" "${POST_INSTALL[*]-}" "${POST_ROLLBACK[*]-}" <<'PY'
+  "$FACTORY" "$NAME" "$SUMMARY" \
+  "${NOTES[*]-}" "${REQUIRES[*]-}" "${POST_INSTALL[*]-}" "${POST_ROLLBACK[*]-}" "${TAGS[@]}" <<'PY'
 import json, sys
 
 (path, pkg, vc, release_at, url, sha, size,
- factory, name, category, summary,
- notes, requires, post_install, post_rollback) = sys.argv[1:19]
+ factory, name, summary,
+ notes, requires, post_install, post_rollback) = sys.argv[1:15]
+tags = sys.argv[15:]
 vc, size, factory = int(vc), int(size), int(factory)
 notes = [s for s in notes.split("|") if s]
 requires = [s for s in requires.split("|") if s]
@@ -128,7 +127,7 @@ if app is None:
         "package": pkg,
         "name": name,
         "summary": summary or "",
-        "category": category,
+        "tags": tags,
         "releases": [],
     }
     if requires:
@@ -141,8 +140,8 @@ if app is None:
 else:
     if name:
         app["name"] = name
-    if category:
-        app["category"] = category
+    if tags:
+        app["tags"] = tags
     if summary:
         app["summary"] = summary
     if requires:

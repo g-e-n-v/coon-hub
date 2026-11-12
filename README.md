@@ -36,7 +36,7 @@ Thông tin maintainer nằm ở `apps/<package>.md`, không nằm trong catalog.
 | `apps[].package` | ✓ | khóa duy nhất = Android package = tên file icon/doc |
 | `apps[].name` | ✓ | hiển thị |
 | `apps[].summary` | ✓ | mô tả 1 dòng (HU không có browser — không URL) |
-| `apps[].category` | ✓ | `patch \\| maps \\| media \\| utility \\| other` — chỉ để nhóm hiển thị |
+| `apps[].tags` | ✓ | mảng string tự do để nhóm hiển thị, không giới hạn nhãn định sẵn |
 | `apps[].icon` | | path tương đối `icons/<file>.webp|.png`; Coon resolve theo base URL catalog |
 | `apps[].requires` | | package phải có trước khi dùng. Coon **chỉ cảnh báo**, không chặn cài |
 | `apps[].postInstall` | | hook chạy sau cài mới/cập nhật (xem dưới) |
@@ -105,7 +105,7 @@ tools/promote.sh com.flyme.auto.keyserver ~/path/factory.apk \
 # app thường mới
 tools/promote.sh app.revanced.android.youtube ~/path/youtube.apk \
   --version-code 1561068412 \
-  --name "YouTube ReVanced" --category media \
+  --name "YouTube ReVanced" --tag media --tag video \
   --summary "YouTube không quảng cáo. Cần MicroG RE." \
   --requires app.revanced.android.gms \
   --note "bản đầu"
