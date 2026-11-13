@@ -54,14 +54,14 @@
       ],
       "releases": [
         {
-          "releaseAt": "2026-11-12",
-          "versionCode": 2026111201,
+          "releaseAt": "2026-11-13",
+          "versionCode": 2026111301,
           "status": "beta",
-          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.12/com.flyme.auto.keyserver-2026111201.apk",
-          "sha256": "400742d770ebad8f9f43f06059bfd6681ea10a4088caf0de65341c254e993ce6",
-          "size": 12839336,
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.13/com.flyme.auto.keyserver-2026111301.apk",
+          "sha256": "ee25be338fe0ded4b1a8981d42e44c0d14a17fcff7a72195215b4a6c20ce65aa",
+          "size": 12758085,
           "notes": [
-            "Bản vá phím vô lăng từ coolray-lab, đang kiểm thử trên HU."
+            "Chuyển tiếp GELLY và MODE tới app.coon; thay bản 2026111201 chỉ điều khiển MODE qua system property."
           ]
         }
       ],
