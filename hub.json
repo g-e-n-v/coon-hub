@@ -2,6 +2,27 @@
   "schemaVersion": 1,
   "apps": [
     {
+      "package": "app.morphe.manager",
+      "name": "Morphe Manager",
+      "summary": "Trình quản lý Morphe, dùng để vá và quản lý ứng dụng trên Android.",
+      "tags": [
+        "Công cụ"
+      ],
+      "releases": [
+        {
+          "releaseAt": "2026-11-15",
+          "versionCode": 39909503,
+          "status": "beta",
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.15/app.morphe.manager-39909503.apk",
+          "sha256": "681a1c179b9e8698c857a092df0ca9a91e294a103743107f4fe96da20cb42ddc",
+          "size": 49876428,
+          "notes": [
+            "Morphe Manager 2.5.0; chưa kiểm thử trên xe."
+          ]
+        }
+      ]
+    },
+    {
       "package": "app.revanced.android.gms",
       "name": "MicroG RE",
       "summary": "Dịch vụ Google thay thế cho các app ReVanced / Morphe. Cài trước YouTube ReVanced.",
@@ -23,7 +44,7 @@
     {
       "package": "app.revanced.android.youtube",
       "name": "YouTube ReVanced",
-      "summary": "YouTube (ReVanced), không quảng cáo, tự sáng/tối theo xe. Cần MicroG RE.",
+      "summary": "YouTube ReVanced 20.14.43, patches 5.46.0. Cần MicroG RE; chưa kiểm thử trên xe.",
       "tags": [
         "Giải trí"
       ],
@@ -33,14 +54,15 @@
       ],
       "releases": [
         {
-          "releaseAt": "2026-11-11",
-          "versionCode": 1561068413,
-          "status": "stable",
-          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.11/app.revanced.android.youtube-1561068413.apk",
-          "sha256": "e706bc92daf2e4f910055466fb36c814d912b852b95fab5e893be642369a5f40",
-          "size": 196360717,
+          "releaseAt": "2026-11-15",
+          "versionCode": 1553866176,
+          "status": "beta",
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.15/app.revanced.android.youtube-1553866176.apk",
+          "sha256": "11083bc6b0ebb371d049acf2d2e1f1c2ce1a9f6aade4f4673656c543f4ccedc6",
+          "size": 167625534,
           "notes": [
-            "Bản autotheme — giao diện tự sáng/tối theo xe"
+            "YouTube 20.14.43, patches 5.46.0; chưa kiểm thử trên xe hoặc xác minh autotheme.",
+            "VersionCode thấp hơn bản 21.16.256 cũ (1561068413); cần gỡ bản cũ trước khi cài, không thể cập nhật đè."
           ]
         }
       ]
