@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate hub.json (schema v1) — chuẩn kiểm tra của repo coon-hub.
+"""Validate hub.json (schema v2) — chuẩn kiểm tra của repo coon-hub.
 
 Thuần stdlib, không cần pip install gì. Chạy local trước khi push; CI chạy
 thêm --assets để tải từng APK và verify sha256 + size thật.
@@ -23,7 +23,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 HUB = REPO / "hub.json"
 
-SUPPORTED_SCHEMA_VERSION = 1
+SUPPORTED_SCHEMA_VERSION = 2
 PACKAGE_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 URL_RE = re.compile(r"^https://\S+$")
@@ -38,7 +38,7 @@ ASSET_CHUNK = 1 << 20
 ASSET_TIMEOUT_S = 300
 
 APP_KEYS = {"package", "name", "summary", "tags", "icon", "requires",
-            "postInstall", "postRollback", "factory", "releases"}
+            "postInstall", "postRollback", "factories", "releases"}
 FACTORY_KEYS = {"versionCode", "sha256", "apk", "size"}
 RELEASE_KEYS = {"releaseAt", "versionCode", "status", "apk", "sha256", "size", "notes"}
 
@@ -137,29 +137,35 @@ def check_app(idx: int, app, icon_seen: set) -> None:
     check_hook_list(app.get("postInstall"), f"{where}.postInstall")
     check_hook_list(app.get("postRollback"), f"{where}.postRollback")
 
-    factory = app.get("factory")
-    if factory is not None:
-        if not isinstance(factory, dict):
-            err(f"{where}.factory: phải là object")
-            factory = None
+    factories = app.get("factories")
+    if factories is not None:
+        if not isinstance(factories, list) or not factories:
+            err(f"{where}.factories: phải là mảng khác rỗng")
         else:
-            fwhere = f"{where}.factory"
-            funknown = set(factory) - FACTORY_KEYS
-            if funknown:
-                err(f"{fwhere}: field lạ: {sorted(funknown)}")
-            for k in ("versionCode", "sha256", "apk", "size"):
-                if k not in factory:
-                    err(f"{fwhere}: thiếu field bắt buộc {k}")
-            vc = factory.get("versionCode")
-            if not isinstance(vc, int) or isinstance(vc, bool) or vc < 1:
-                err(f"{fwhere}.versionCode phải là số nguyên > 0")
-            if not SHA256_RE.match(factory.get("sha256") or ""):
-                err(f"{fwhere}.sha256 phải là 64 ký tự hex thường")
-            if not URL_RE.match(factory.get("apk") or ""):
-                err(f"{fwhere}.apk phải là URL https")
-            sz = factory.get("size")
-            if not isinstance(sz, int) or isinstance(sz, bool) or sz < 0:
-                err(f"{fwhere}.size phải là số nguyên >= 0")
+            seen_vc = set()
+            for j, fac in enumerate(factories):
+                fwhere = f"{where}.factories[{j}]"
+                if not isinstance(fac, dict):
+                    err(f"{fwhere}: phải là object")
+                    continue
+                funknown = set(fac) - FACTORY_KEYS
+                if funknown:
+                    err(f"{fwhere}: field lạ: {sorted(funknown)}")
+                vc = fac.get("versionCode")
+                if not isinstance(vc, int) or isinstance(vc, bool) or vc < 1:
+                    err(f"{fwhere}.versionCode phải là số nguyên > 0")
+                elif vc in seen_vc:
+                    err(f"{fwhere}.versionCode={vc} trùng baseline khác")
+                else:
+                    seen_vc.add(vc)
+                if "sha256" in fac and not SHA256_RE.match(fac.get("sha256") or ""):
+                    err(f"{fwhere}.sha256 phải là 64 ký tự hex thường")
+                if "apk" in fac and not URL_RE.match(fac.get("apk") or ""):
+                    err(f"{fwhere}.apk phải là URL https")
+                if "size" in fac and (
+                    not isinstance(fac["size"], int) or isinstance(fac["size"], bool) or fac["size"] < 0
+                ):
+                    err(f"{fwhere}.size phải là số nguyên >= 0")
 
     releases = app.get("releases")
     if not isinstance(releases, list):
@@ -215,9 +221,16 @@ def check_app(idx: int, app, icon_seen: set) -> None:
         ):
             err(f"{rwhere}.notes phải là mảng chuỗi không rỗng")
 
-        if factory is not None:
-            if isinstance(vc, int) and vc <= factory.get("versionCode", 0):
-                err(f"{rwhere}: versionCode patch ({vc}) phải > factory.versionCode ({factory.get('versionCode')}) — điều kiện rollback qua uninstall")
+        if factories:
+            max_baseline = max(
+                (f.get("versionCode") for f in factories if isinstance(f.get("versionCode"), int)),
+                default=0,
+            )
+            if isinstance(vc, int) and vc <= max_baseline:
+                print(
+                    f"WARN {rwhere}: versionCode patch ({vc}) <= baseline lớn nhất ({max_baseline}) "
+                    f"— pm sẽ từ chối cài đè trên xe chạy baseline đó (Coon cũng sẽ hiện NEWER)"
+                )
             valid_patch_version_code(vc, rwhere)
 
 
@@ -228,9 +241,9 @@ def check_assets(root) -> None:
         if not isinstance(app, dict):
             continue
         pkg = app.get("package", "?")
-        fac = app.get("factory")
-        if isinstance(fac, dict) and URL_RE.match(fac.get("apk") or ""):
-            urls.append((f"{pkg} [factory]", fac["apk"], fac.get("sha256"), fac.get("size")))
+        for fac in app.get("factories") or []:
+            if isinstance(fac, dict) and URL_RE.match(fac.get("apk") or ""):
+                urls.append((f"{pkg} [factory {fac['versionCode']}]", fac["apk"], fac.get("sha256"), fac.get("size")))
         for i, rel in enumerate(app.get("releases") or []):
             if isinstance(rel, dict) and URL_RE.match(rel.get("apk") or ""):
                 urls.append((f"{pkg} releases[{i}]", rel["apk"], rel.get("sha256"), rel.get("size")))

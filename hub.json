@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "apps": [
     {
       "package": "app.morphe.manager",
@@ -93,12 +93,17 @@
       "postRollback": [
         "start-service:com.flyme.auto.keyserver/.service.AutoKeyService"
       ],
-      "factory": {
-        "versionCode": 26020313,
-        "sha256": "5dd6217da9bb472364dcd60f00b99f7ba4ca9a6421167690f5e9a226f6ffab51",
-        "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.12/com.flyme.auto.keyserver-factory-26020313.apk",
-        "size": 12761386
-      }
+      "factories": [
+        {
+          "versionCode": 26020313,
+          "sha256": "5dd6217da9bb472364dcd60f00b99f7ba4ca9a6421167690f5e9a226f6ffab51",
+          "apk": "https://github.com/g-e-n-v/coon-hub/releases/download/hub-2026.11.12/com.flyme.auto.keyserver-factory-26020313.apk",
+          "size": 12761386
+        },
+        {
+          "versionCode": 260107718
+        }
+      ]
     },
     {
       "package": "com.waze",

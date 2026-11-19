@@ -53,16 +53,17 @@ bash -n tools/promote.sh
 ## Runtime contract and change boundaries
 
 Coon reads `hub.json`, resolves relative icon paths against the catalog base
-URL, and downloads APKs from the absolute HTTPS URLs in release/factory
+URL, and downloads APKs from the absolute HTTPS URLs in release and factory
 records. The catalog supplies size for progress/display and SHA-256 for install
-integrity. Release assets use tags `hub-YYYY.MM.DD`; preserve existing asset
+integrity. Factory records are metadata only: Coon never compares the on-device
+base APK against them and never blocks an install because of them. Release assets use tags `hub-YYYY.MM.DD`; preserve existing asset
 URLs and bytes because clients rely on their recorded digests.
 
 - Keep only fields used for runtime decisions/display in the catalog. Put
   maintainer details in `apps/<package>.md`, not new catalog fields. Unknown
-  keys are rejected at the root, app, factory, and release levels.
-- `schemaVersion` is currently `1`. README documents that Coon rejects schema
-  versions newer than it supports.
+  keys are rejected at the root, app, factory entry, and release levels.
+- `schemaVersion` is currently `2`. README documents that Coon rejects schema
+  versions it does not support.
 - Android package names are unique app identities and determine note/icon
   filenames. The promotion script sorts apps lexicographically by package.
 - Releases must be strictly ascending by `versionCode`, with at most one
@@ -71,11 +72,14 @@ URLs and bytes because clients rely on their recorded digests.
 - Version codes must come from the actual APK manifest. Neither the validator
   nor the promotion script verifies them against the manifest. Digests must be
   lowercase 64-character hex; sizes are byte counts of the exact hosted APK.
-- The presence of `factory`, not a tag, identifies a system-app patch. Preserve
-  the original factory APK and metadata for recovery. Patch release codes must
-  encode a valid date as `YYYYMMDDnn`, with `nn` from `01` to `99`, and exceed
-  the factory version code so rollback can uninstall the update and reveal the
-  `/system` version. README also requires staying below Android's signed-int32
+- A non-empty `factories` array, not a tag, identifies a system-app patch. Each
+  entry is one tested firmware baseline: `versionCode` is required, the other
+  fields are optional and exist only so the original APK stays recoverable.
+  Entries do not gate installation. Patch release codes must encode a valid
+  date as `YYYYMMDDnn`, with `nn` from `01` to `99`. A patch code may trail a
+  newer baseline; on such a car the package manager refuses the overlay and
+  Coon reports the app as not-installable, so bump the patch code instead of
+  loosening checks. README also requires staying below Android's signed-int32
   maximum; the validator does not enforce that upper bound.
 - Ordinary apps retain their own APK version codes and use normal uninstall
   for rollback. Do not apply the patch version-code convention to them.
@@ -130,9 +134,10 @@ tools/promote.sh <package> /path/to/app.apk \
 - `--release-at` defaults to the local current date and determines both the
   catalog date and release tag. `--status` defaults to `stable`, so explicitly
   pass `--status beta` for unaccepted builds. New app entries require `--name`.
-- `--factory` sets/replaces the factory record rather than adding a release.
-  Register the factory before promoting a system patch: patch classification
-  and the signature check depend on an existing factory or `--factory`.
+- `--factory` adds/replaces a baseline entry in the app's `factories` array
+  (matching by `versionCode`) rather than adding a release. Register at least
+  one baseline before promoting a system patch: patch classification and the
+  signature check depend on existing factories or `--factory`.
 - Asset names are `<package>-<versionCode>.apk`, or
   `<package>-factory-<versionCode>.apk` for factory uploads. The script computes
   digest/size, creates the release if needed, and uploads with `--clobber`.

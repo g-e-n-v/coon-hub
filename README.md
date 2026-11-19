@@ -25,14 +25,14 @@ APK **không commit vào repo** — nằm trên GitHub Releases, tag `hub-YYYY.M
 link asset ổn định vĩnh viễn theo tag. Factory APK gốc vẫn backup ở coolray-lab
 `extracts/factory-apks/` (Git LFS); hub chỉ chứa digest + URL.
 
-## Schema v1 — hub.json
+## Schema v2 — hub.json
 
 Nguyên tắc: **mọi field phải phục vụ một quyết định/hiển thị runtime của Coon**.
 Thông tin maintainer nằm ở `apps/<package>.md`, không nằm trong catalog.
 
 | Field | Bắt buộc | Ý nghĩa |
 | --- | --- | --- |
-| `schemaVersion` | ✓ | luôn `1`. Coon từ chối catalog có số cao hơn mức nó hiểu |
+| `schemaVersion` | ✓ | luôn `2`. Coon từ chối catalog có số khác mức nó hiểu |
 | `apps[].package` | ✓ | khóa duy nhất = Android package = tên file icon/doc |
 | `apps[].name` | ✓ | hiển thị |
 | `apps[].summary` | ✓ | mô tả 1 dòng (HU không có browser — không URL) |
@@ -41,7 +41,7 @@ Thông tin maintainer nằm ở `apps/<package>.md`, không nằm trong catalog.
 | `apps[].requires` | | package phải có trước khi dùng. Coon **chỉ cảnh báo**, không chặn cài |
 | `apps[].postInstall` | | hook chạy sau cài mới/cập nhật (xem dưới) |
 | `apps[].postRollback` | | hook chạy sau "Gỡ cập nhật" (rollback về /system factory) |
-| `apps[].factory` | | **có = system app patch**, không có = app thường. `{versionCode, sha256, apk, size}` — digest để Coon detect trạng thái; `apk` để chia sẻ + khôi phục worst-case (mất cả backup Coon lẫn `/system`) |
+| `apps[].factories` | | **khác rỗng = system app patch**. Mảng baseline firmware mà patch đã kiểm thử: `{versionCode, sha256?, apk?, size?}` — versionCode bắt buộc, còn lại tùy chọn (chỉ khi APK gốc đã dump lên Releases). Thuần metadata + backup khôi phục worst-case; Coon **không đối chiếu, không chặn cài** theo field này |
 | `apps[].releases[]` | ✓ | mảng phiên bản, **sort tăng nghiêm ngặt theo versionCode** |
 | `releases[].releaseAt` | ✓ | ISO `YYYY-MM-DD`; tối đa 1 release/app/ngày; Coon hiển thị `2026.11.04` |
 | `releases[].versionCode` | ✓ | số nguyên thật nằm trong APK (xem quy ước dưới) |
@@ -101,7 +101,8 @@ tools/promote.sh com.flyme.auto.keyserver ~/path/GeelyAutoKeyServer.apk \
 
 # bản đang kiểm thử: thêm --status beta (mặc định stable)
 
-# đăng ký factory base lần đầu (APK gốc pull từ xe)
+# đăng ký factory baseline (APK gốc pull từ xe; baseline chưa dump APK thì sửa
+# hub.json thêm {"versionCode": N} thủ công)
 tools/promote.sh com.flyme.auto.keyserver ~/path/factory.apk \
   --version-code 26020313 --factory
 

@@ -10,6 +10,9 @@
 #   tools/promote.sh com.flyme.auto.keyserver ./KeyServer-factory.apk \
 #       --version-code 26020313 --factory
 #
+#   --factory: đăng ký/ghi đè baseline firmware trong apps[].factories (metadata
+#   các base mà patch đã kiểm thử; APK gốc trên Releases là backup khôi phục).
+#
 #   tools/promote.sh app.revanced.android.youtube ./youtube.apk \
 #       --version-code 1561068412 \
 #       --name "YouTube ReVanced" --tag media --summary "Không quảng cáo." \
@@ -75,13 +78,13 @@ gh auth status >/dev/null 2>&1 || die "chưa 'gh auth login'"
 SHA="$(shasum -a 256 "$APK" | awk '{print $1}')"
 SIZE="$(stat -f%z "$APK")"
 
-# App đã có trong catalog? Có factory (patch) chưa?
+# App đã có trong catalog? Có factories (patch) chưa?
 read -r EXISTS HAS_FACTORY < <(python3 - "$HUB_JSON" "$PKG" <<'PY'
 import json, sys
 apps = json.load(open(sys.argv[1]))["apps"]
 pkg = sys.argv[2]
 a = next((x for x in apps if x.get("package") == pkg), None)
-print(f"{int(a is not None)} {int(a is not None and 'factory' in a)}")
+print(f"{int(a is not None)} {int(bool(a is not None and a.get('factories')))}")
 PY
 )
 IS_PATCH=$(( FACTORY ? 1 : HAS_FACTORY ))
@@ -159,7 +162,10 @@ else:
         app["postRollback"] = post_rollback
 
 if factory:
-    app["factory"] = {"versionCode": vc, "sha256": sha, "apk": url, "size": size}
+    factories = app.setdefault("factories", [])
+    factories[:] = [f for f in factories if f.get("versionCode") != vc]
+    factories.append({"versionCode": vc, "sha256": sha, "apk": url, "size": size})
+    factories.sort(key=lambda f: f["versionCode"])
 else:
     if any(r["versionCode"] == vc for r in app["releases"]):
         sys.exit(f"LỖI: {pkg} đã có release versionCode={vc}")
@@ -176,7 +182,7 @@ apps.sort(key=lambda a: a["package"])
 with open(path, "w", encoding="utf-8") as f:
     json.dump(doc, f, ensure_ascii=False, indent=2)
     f.write("\n")
-print(f"hub.json: đã ghi {pkg} (versionCode={vc}, {'factory' if factory else 'release'})")
+print(f"hub.json: đã ghi {pkg} (versionCode={vc}, {'baseline factory' if factory else 'release'})")
 PY
 
 echo "Đã upload: $URL"

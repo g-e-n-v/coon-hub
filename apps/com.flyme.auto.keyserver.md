@@ -1,7 +1,7 @@
 # com.flyme.auto.keyserver — AutoKeyServer
 
 - Trạng thái: **beta**, cần kiểm thử trên HU thật; chưa coi là ổn định.
-- Factory: `coolray-lab/extracts/factory-apks/GeelyAutoKeyServer.apk`, versionCode `26020313`, giữ nguyên APK nguồn.
+- Factory baselines đã kiểm thử: `26020313` (APK backup `coolray-lab/extracts/factory-apks/GeelyAutoKeyServer.apk`, cũng nằm trên Releases) và `260107718` (firmware khác xe, chưa dump APK — Coon cho phép update trên mọi base, mục này chỉ để ghi nhận).
 - Patched: `coolray-lab/projects/coon/keyserver-patch/GeelyAutoKeyServer-appcoon-2026111301.apk`, versionCode `2026111301`, zipalign và ký platform key của firmware.
 - Chuyển tiếp GELLY/MODE qua ordered broadcast `app.coon.intent.action.HARD_KEY_EVENT`, package đích `app.coon`; Bridge chạy hành vi factory khi Coon không claim.
 - Đã thu hồi release `2026111201` khỏi catalog và xóa asset lỗi: bản đó chỉ đọc `persist.sys.coon.mode`, không chuyển tiếp sự kiện tới Coon. Giữ nguyên APK factory phục vụ rollback.

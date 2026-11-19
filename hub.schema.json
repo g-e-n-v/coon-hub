@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/g-e-n-v/coon-hub/main/hub.schema.json",
-  "title": "Coon Hub catalog (schema v1)",
+  "title": "Coon Hub catalog (schema v2)",
   "description": "Nguồn sự thật cho tab Hub của app Coon (IHU689G). Chuẩn kiểm tra thực tế là tools/validate.py — schema này là hợp đồng hình thức cho editor/tooling.",
   "type": "object",
   "required": ["schemaVersion", "apps"],
   "additionalProperties": false,
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": { "const": 2 },
     "apps": {
       "type": "array",
       "items": { "$ref": "#/definitions/app" }
@@ -23,7 +23,7 @@
         "name": { "type": "string", "minLength": 1 },
         "summary": { "type": "string" },
         "tags": {
-          "description": "Nhãn tự do để nhóm hiển thị trong Coon; factory có mặt = system app patch, độc lập với tags.",
+          "description": "Nhãn tự do để nhóm hiển thị trong Coon; factories khác rỗng = system app patch, độc lập với tags.",
           "type": "array",
           "items": { "type": "string" }
         },
@@ -46,9 +46,12 @@
           "description": "Hook chạy sau 'Gỡ cập nhật' (rollback patch về /system factory).",
           "$ref": "#/definitions/hookList"
         },
-        "factory": {
-          "description": "Có field này = system app patch. versionCode + sha256 để Coon detect trạng thái; apk + size để chia sẻ và khôi phục worst-case.",
-          "$ref": "#/definitions/factory"
+        "factories": {
+          "description": "Khác rỗng = system app patch. Metadata các firmware baseline mà patch đã được kiểm thử; KHÔNG dùng để chặn cài — Coon cho phép update trên mọi base, apk/sha256/size chỉ để backup khôi phục worst-case.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/factory" },
+          "uniqueItems": true,
+          "minItems": 1
         },
         "releases": {
           "type": "array",
@@ -57,8 +60,9 @@
       }
     },
     "factory": {
+      "description": "Một firmware baseline: versionCode là định danh; các field còn lại tùy chọn, chỉ có khi APK gốc đã được dump lên Releases.",
       "type": "object",
-      "required": ["versionCode", "sha256", "apk", "size"],
+      "required": ["versionCode"],
       "additionalProperties": false,
       "properties": {
         "versionCode": { "type": "integer", "minimum": 1 },
